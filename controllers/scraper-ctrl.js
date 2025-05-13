@@ -1,11 +1,12 @@
 const Axios = require("axios");
 const Cheerio = require("cheerio");
 
-async function WScrape(){
+async function WScrape() {
   const result = [];
-  // const url = "https://www.moneycontrol.com/stocks/marketinfo/dividends_declared/index.php"
+  const url =
+    "https://www.moneycontrol.com/stocks/marketinfo/dividends_declared/index.php";
   //   const url = "https://www.instagram.com/p/CZNAiyyIgTX/?__a=1";
-  const url = "https://www.instagram.com/p/CZSVgyXo29C/";
+  // const url = "https://www.instagram.com/p/CZSVgyXo29C/";
 
   // Get HTMl of the website
   const response = await Axios.get(url);
@@ -29,11 +30,11 @@ async function WScrape(){
     }
   });
   return result;
-};
-
-getDividend = async (req, res) => {
-    const resultArray = await WScrape()
-    return res.status(200).json({ success: true, data: resultArray })
 }
 
-module.exports = {getDividend}
+getDividend = async (req, res) => {
+  const resultArray = await WScrape();
+  return res.status(200).json({ success: true, data: resultArray });
+};
+
+module.exports = { getDividend };

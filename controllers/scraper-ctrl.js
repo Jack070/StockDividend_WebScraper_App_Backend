@@ -2,34 +2,56 @@ const Axios = require("axios");
 const Cheerio = require("cheerio");
 
 async function WScrape() {
-  const result = [];
-  const url =
-    "https://www.moneycontrol.com/stocks/marketinfo/dividends_declared/index.php";
-  //   const url = "https://www.instagram.com/p/CZNAiyyIgTX/?__a=1";
-  // const url = "https://www.instagram.com/p/CZSVgyXo29C/";
+  try {
+    const { data } = await Axios.get(
+      "https://www.moneycontrol.com/markets/corporate-action/dividends_declared/"
+    );
+    const $ = Cheerio.load(data);
 
-  // Get HTMl of the website
-  const response = await Axios.get(url);
-  const html = response.data;
-  console.log(html);
-  // Load HTML to cheerio
-  const $ = Cheerio.load(html);
+    const dividends = [];
 
-  // Loop through the table element
-  const tableData = $(".dvdtbl");
-  tableData.find("tr").map((_, element) => {
-    const productElement = $(element);
-    const col = productElement.find("td").text();
-    if (!col.startsWith("COMPANY") && !col.startsWith("Type%")) {
-      const td_array = [];
-      productElement.find("td").map((_, tdelement) => {
-        const td_element = $(tdelement);
-        td_array.push(td_element.text());
+    $(".lhsGrayCard_web_lhsGrayCard__RSkQw").each((i, el) => {
+      const companyName = $(el)
+        .find(".lhsGrayCard_web_title__B2NJA")
+        .text()
+        .trim();
+
+      const dividend = $(el)
+        .find(".lhsGrayCard_web_rhs__xLmyc")
+        .first()
+        .find("span")
+        .eq(1)
+        .text()
+        .trim();
+
+      const announcementDate = $(el)
+        .find(
+          ".lhsGrayCard_web_fourthRow__cfWu4 .lhsGrayCard_web_lhs__Bh6QQ span"
+        )
+        .eq(1)
+        .text()
+        .trim();
+
+      const exDate = $(el)
+        .find(
+          ".lhsGrayCard_web_fourthRow__cfWu4 .lhsGrayCard_web_rhs__xLmyc span"
+        )
+        .eq(1)
+        .text()
+        .trim();
+
+      dividends.push({
+        companyName,
+        announcementDate,
+        exDate,
+        dividend,
       });
-      result.push(td_array);
-    }
-  });
-  return result;
+    });
+
+    return dividends;
+  } catch (err) {
+    console.error("Scraping failed:", err.message);
+  }
 }
 
 getDividend = async (req, res) => {
